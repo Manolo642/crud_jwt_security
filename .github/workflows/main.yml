@@ -39,10 +39,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
         run: |
           # Si usas Maven:
-           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
-            -Dsonar.projectKey=ApiCrudJwt 
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} 
-            -Dsonar.host.url=${{ secrets.SONAR_URL }}
+           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ApiCrudJwt -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=${{ secrets.SONAR_URL }}
 
         
 
