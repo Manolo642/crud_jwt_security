@@ -1,0 +1,61 @@
+name: SonarQube Scan
+
+on:
+  push:
+    branches:
+      - main # O la rama principal de tu proyecto, ej. develop
+  pull_request:
+    types: [opened, synchronize, reopened] # Escanea cuando se abre, actualiza o reabre un PR
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest # Ejecuta el workflow en una máquina virtual Linux
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history for all branches and tags
+          fetch-depth: 0 
+
+      - name: Set up Java JDK # Si tu proyecto es Java, ajusta la versión según necesites
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17' # Por ejemplo, Java 17
+          distribution: 'temurin'
+          cache: 'maven' # Si usas Maven, puedes cachear dependencias
+
+      - name: Cache SonarQube packages # (Opcional) Acelera builds futuras
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Build and analyze with SonarScanner # El paso clave de SonarQube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+        run: |
+          # Si usas Maven:
+           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+            -Dsonar.projectKey=ApiCrudJwt 
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} 
+            -Dsonar.host.url=${{ secrets.SONAR_URL }}
+
+        
+
+      - name: Wait for Quality Gate status # (Opcional pero muy recomendado)
+        uses: SonarSource/sonarcloud-github-action@master # Esta acción se usa con SonarCloud, pero funciona con SonarQube local también
+        if: success() # Solo espera si el análisis fue exitoso
+        with:
+          projectBaseDir: .
+          token: ${{ secrets.SONAR_TOKEN }} # Usa el mismo token
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+          # Importante: para SonarQube self-hosted, necesitas la siguiente variable.
+          # Indica que no es SonarCloud, sino una instancia local/self-hosted.
+          # Ajusta la URL si tu SonarQube no está en localhost:9000
+          SONAR_URL: ${{ secrets.SONAR_URL }}
