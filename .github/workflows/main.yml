@@ -41,8 +41,6 @@ jobs:
           # Si usas Maven:
            mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Manolo642_crud_jwt_security -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=${{ secrets.SONAR_URL }}
 
-        
-
       - name: Wait for Quality Gate status # (Opcional pero muy recomendado)
         uses: SonarSource/sonarcloud-github-action@master # Esta acción se usa con SonarCloud, pero funciona con SonarQube local también
         if: success() # Solo espera si el análisis fue exitoso
